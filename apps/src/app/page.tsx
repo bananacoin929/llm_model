@@ -40,6 +40,7 @@ export default function Home() {
     responseJson: "",
     llmchildren: [],
   });
+  const [previewPrompt, setPreviewPrompt] = useState("");
   const [curLLmRequest, setCurLLmRequest] = useState({
     value: "NudgeGoal",
     label: "NudgeGoal",
@@ -105,7 +106,6 @@ export default function Home() {
   const genInputJson = async () => {
     await getInputJson(curObject.value, "66ccee96cb2984594067aaca").then(
       (res: any) => {
-        console.log(res);
         setInputJson({
           specific: res.specific,
           measurable: res.measurable,
@@ -116,13 +116,13 @@ export default function Home() {
     );
   };
 
-  const previewPrompt = async () => {
+  const runPreviewPrompt = async () => {
     const data: any = {};
     data[curObject.value] = inputJson;
 
     updateJson(data, tagJson, curLLmRequest.value).then((result) => {
-      console.log(result);
-      setCurRequestInfo({ ...curRequestInfo, description: result });
+      console.log(result)
+      setPreviewPrompt(result);
     });
   };
   const getLLMData = async (param: string) => {
@@ -181,7 +181,8 @@ export default function Home() {
     axios
       .put(process.env.NEXT_PUBLIC_LLM_API + "api/LLMRequest", curRequestInfo)
       .then(() => {
-        toast.success("Successfully updated")
+        runPreviewPrompt();
+		toast.success("Successfuly updated!");
       })
       .catch((err) => {
         console.log(err);
@@ -264,7 +265,7 @@ export default function Home() {
             <Textarea
               placeholder="Prompt Text"
               textareaClassName=" h-10"
-              value={curRequestInfo.description}
+              value={previewPrompt}
               onChange={() => null}
             />
             <div className="flex flex-row justify-between w-full">
@@ -291,7 +292,7 @@ export default function Home() {
               <div className="flex gap-5 items-end">
                 <button
                   className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={previewPrompt}
+                  onClick={runPreviewPrompt}
                 >
                   Run
                 </button>
@@ -402,6 +403,7 @@ export default function Home() {
               className="bg-[#26AD60]"
               onClick={() => {
                 addTag();
+                setOpen(false)
               }}
             >
               Add
@@ -445,6 +447,7 @@ export default function Home() {
               className="bg-[#26AD60]"
               onClick={() => {
                 genInputJson();
+                setIsOpen(false)
               }}
             >
               Add
