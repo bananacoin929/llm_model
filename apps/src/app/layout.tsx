@@ -10,8 +10,8 @@ import GlobalModal from "@/app/shared/modal-views/container";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "App Name",
-  description: "Write your app description",
+  title: "LLM",
+  description: "LLM",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
