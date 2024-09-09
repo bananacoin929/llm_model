@@ -208,7 +208,7 @@ export default function Home() {
       <Title>Update existing LLMObjects</Title>
       <div className="flex h-full">
         <div className="w-1/3 mr-6 flex flex-col h-full justify-between">
-        <div className="h-40">
+        <div className="h-[175px]">
           <CustomGroupBox title="Select LLM Request">
             <Select
               className="pb-5"
@@ -267,7 +267,7 @@ export default function Home() {
           </CustomGroupBox>
         </div>
         <div className="flex flex-col w-full justify-between">
-          <div className="h-40">
+          <div className="h-[175px]">
           <CustomGroupBox title="Preview Prompt">
             <Textarea
               placeholder="Prompt Text"
