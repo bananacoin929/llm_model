@@ -129,7 +129,7 @@ export default function Home() {
     data[curObject.value] = inputJson;
 
     updateJson(data, tagJson, curLLmRequest.value).then((result) => {
-      console.log(result)
+      console.log(result);
       setPreviewPrompt(result);
     });
   };
@@ -185,12 +185,11 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
-
   const updatePreviewP = () => {
     updatePreviewPrompt(curRequestInfo).then(() => {
       runPreviewPrompt();
-      toast.success("Successfuly updated!")
-    })
+      toast.success("Successfuly updated!");
+    });
   };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
@@ -201,32 +200,32 @@ export default function Home() {
     llmRequestData.llmchildren = children;
 
     setCurRequestInfo(llmRequestData);
-  }
+  };
 
   return (
     <>
       <Title>Update existing LLMObjects</Title>
       <div className="flex h-full">
         <div className="w-1/3 mr-6 flex flex-col h-full justify-between">
-        <div className="h-[175px]">
-          <CustomGroupBox title="Select LLM Request">
-            <Select
-              className="pb-5"
-              placeholder=""
-              options={llmRequests?.map((item) => {
-                return { value: item, label: item, disabled: false };
-              })}
-              value={curLLmRequest.value}
-              onChange={(s: any) => {
-                setCurLLmRequest({
-                  value: s.value,
-                  label: s.label,
-                  disabled: false,
-                });
-                getLLMData(s.value);
-              }}
-            ></Select>
-          </CustomGroupBox>
+          <div className="h-[175px]">
+            <CustomGroupBox title="Select LLM Request">
+              <Select
+                className="pb-5"
+                placeholder=""
+                options={llmRequests?.map((item) => {
+                  return { value: item, label: item, disabled: false };
+                })}
+                value={curLLmRequest.value}
+                onChange={(s: any) => {
+                  setCurLLmRequest({
+                    value: s.value,
+                    label: s.label,
+                    disabled: false,
+                  });
+                  getLLMData(s.value);
+                }}
+              ></Select>
+            </CustomGroupBox>
           </div>
           <CustomGroupBox title="LLM Request Info">
             <Textarea
@@ -268,50 +267,50 @@ export default function Home() {
         </div>
         <div className="flex flex-col w-full justify-between">
           <div className="h-[175px]">
-          <CustomGroupBox title="Preview Prompt">
-            <Textarea
-              placeholder="Prompt Text"
-              textareaClassName=" h-10"
-              value={previewPrompt}
-              onChange={() => null}
-            />
-            <div className="flex flex-row justify-between w-full">
-              <div className="flex gap-5 items-end">
-                {/* <Button className="w-32 h-8 bg-[#26AD60]">Seed</Button> */}
-                <Input
-                  className="w-32"
-                  placeholder="Seed"
-                  onChange={() => null}
-                />
-                <button
-                  className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={() => setOpen(true)}
-                >
-                  Tags
-                </button>
-                <button
-                  className="w-20 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={() => setIsOpen(true)}
-                >
-                  InputJson
-                </button>
+            <CustomGroupBox title="Preview Prompt">
+              <Textarea
+                placeholder="Prompt Text"
+                textareaClassName=" h-10"
+                value={previewPrompt}
+                onChange={() => null}
+              />
+              <div className="flex flex-row justify-between w-full">
+                <div className="flex gap-5 items-end">
+                  {/* <Button className="w-32 h-8 bg-[#26AD60]">Seed</Button> */}
+                  <Input
+                    className="w-32"
+                    placeholder="Seed"
+                    onChange={() => null}
+                  />
+                  <button
+                    className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                    onClick={() => setOpen(true)}
+                  >
+                    Tags
+                  </button>
+                  <button
+                    className="w-20 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                    onClick={() => setIsOpen(true)}
+                  >
+                    InputJson
+                  </button>
+                </div>
+                <div className="flex gap-5 items-end">
+                  <button
+                    className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                    onClick={runPreviewPrompt}
+                  >
+                    Run
+                  </button>
+                  <button
+                    className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                    onClick={updatePreviewP}
+                  >
+                    Update
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-5 items-end">
-                <button
-                  className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={runPreviewPrompt}
-                >
-                  Run
-                </button>
-                <button
-                  className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={updatePreviewP}
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-          </CustomGroupBox>
+            </CustomGroupBox>
           </div>
           <div
             className="overflow-y-auto flex flex-col gap-5"
@@ -355,7 +354,10 @@ export default function Home() {
                         promptText={item.promptText}
                         keyInsert={tagSelector}
                         seperator={item.seperator}
-                        curTagType={(curRequestInfo.llmchildren[index] as TagPrompt).keyInsert}
+                        curTagType={
+                          (curRequestInfo.llmchildren[index] as TagPrompt)
+                            .keyInsert
+                        }
                         setCurTagType={onChangeTagpromptChildType}
                         handleOrderChildren={handleOrderChildren}
                       ></TagPromptBox>
@@ -411,7 +413,7 @@ export default function Home() {
               className="bg-[#26AD60]"
               onClick={() => {
                 addTag();
-                setOpen(false)
+                setOpen(false);
               }}
             >
               Add
@@ -447,7 +449,12 @@ export default function Home() {
                 });
               }}
             ></Select>
-            <Input className="w-30" placeholder="ObjectId" value={objectId} onChange={(e) => setObjectId(e.target.value)} />
+            <Input
+              className="w-30"
+              placeholder="ObjectId"
+              value={objectId}
+              onChange={(e) => setObjectId(e.target.value)}
+            />
           </div>
           <Textarea />
           <div className="flex flex-row w-full justify-end gap-3 mt-3 ">
@@ -455,7 +462,7 @@ export default function Home() {
               className="bg-[#26AD60]"
               onClick={() => {
                 genInputJson();
-                setIsOpen(false)
+                setIsOpen(false);
               }}
             >
               Add
