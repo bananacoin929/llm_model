@@ -226,6 +226,7 @@ export default function Home() {
               }}
             ></Select>
           </CustomGroupBox>
+          
           <CustomGroupBox title="LLM Request Info">
             <Textarea
               placeholder="Description"
@@ -309,6 +310,7 @@ export default function Home() {
               </div>
             </div>
           </CustomGroupBox>
+          <div className="mt-8"></div>
           <div
             className="overflow-y-auto flex flex-col gap-5"
             style={{ height: "calc(100vh - 315px)" }}
