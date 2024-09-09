@@ -46,6 +46,7 @@ export default function Home() {
     responseJson: "",
     llmchildren: [],
   });
+  const [objectId, setObjectId] = useState("");
   const [previewPrompt, setPreviewPrompt] = useState("");
   const [curLLmRequest, setCurLLmRequest] = useState({
     value: "NudgeGoal",
@@ -110,6 +111,7 @@ export default function Home() {
   };
 
   const genInputJson = async () => {
+    // 66ccee96cb2984594067aaca
     await getInputJson(curObject.value, "66ccee96cb2984594067aaca").then(
       (res: any) => {
         setInputJson({
@@ -441,7 +443,7 @@ export default function Home() {
                 });
               }}
             ></Select>
-            <Input className="w-30" placeholder="ObjectId" />
+            <Input className="w-30" placeholder="ObjectId" value={objectId} onChange={(e) => setObjectId(e.target.value)} />
           </div>
           <Textarea />
           <div className="flex flex-row w-full justify-end gap-3 mt-3 ">
