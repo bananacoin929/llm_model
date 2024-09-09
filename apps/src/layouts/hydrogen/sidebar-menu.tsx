@@ -5,7 +5,7 @@ import { Title, Collapse } from 'rizzui';
 import cn from '@utils/class-names';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { menuItems } from '@/layouts/hydrogen/menu-items';
-import StatusBadge from '@components/get-status-badge';
+// import StatusBadge from '@components/get-status-badge';
 
 export function SidebarMenu() {
   const pathname = usePathname();
@@ -90,9 +90,9 @@ export function SidebarMenu() {
                               {dropdownItem?.name}
                             </span>
                           </div>
-                          {dropdownItem?.badge?.length ? (
+                          {/* {dropdownItem?.badge?.length ? (
                             <StatusBadge status={dropdownItem?.badge} />
-                          ) : null}
+                          ) : null} */}
                         </Link>
                       );
                     })}
@@ -122,9 +122,9 @@ export function SidebarMenu() {
                       )}
                       <span className="truncate">{item.name}</span>
                     </div>
-                    {item?.badge?.length ? (
+                    {/* {item?.badge?.length ? (
                       <StatusBadge status={item?.badge} />
-                    ) : null}
+                    ) : null} */}
                   </Link>
                 )}
               </>
