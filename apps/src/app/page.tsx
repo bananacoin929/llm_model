@@ -27,6 +27,11 @@ import {
 //   ),
 // });
 
+interface TagPrompt {
+  keyInsert: string;
+  [key: string]: any;
+}
+
 export default function Home() {
   const [llmRequests, setRequests] = useState([]);
   const [apiObjects, setApiObjects] = useState([]);
@@ -193,7 +198,7 @@ export default function Home() {
     const llmRequestData = { ...curRequestInfo };
     const children = [...llmRequestData.llmchildren];
 
-    children[index].keyInsert = value;
+    (children[index] as TagPrompt).keyInsert = value;
     llmRequestData.llmchildren = children;
 
     setCurRequestInfo(llmRequestData);
@@ -347,7 +352,7 @@ export default function Home() {
                         promptText={item.promptText}
                         keyInsert={tagSelector}
                         seperator={item.seperator}
-                        curTagType={curRequestInfo.llmchildren[index].keyInsert}
+                        curTagType={(curRequestInfo.llmchildren[index] as TagPrompt).keyInsert}
                         setCurTagType={onChangeTagpromptChildType}
                         handleOrderChildren={handleOrderChildren}
                       ></TagPromptBox>
