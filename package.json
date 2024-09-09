@@ -22,7 +22,7 @@
     "rimraf": "^5.0.5",
     "turbo": "2.0.1"
   },
-  "packageManager": "pnpm",
+  "packageManager": "pnpm@9.1.4",
   "engines": {
     "node": ">=18"
   }
