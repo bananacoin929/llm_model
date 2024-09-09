@@ -15,6 +15,7 @@ import {
   getHomeData,
   getLLmRequestInfo,
   updateJson,
+  updatePreviewPrompt,
   getInputJson,
 } from "@/server/home";
 
@@ -182,16 +183,12 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
-  const updatePreviewPrompt = () => {
-    axios
-      .put(process.env.NEXT_PUBLIC_LLM_API + "api/LLMRequest", curRequestInfo)
-      .then(() => {
-        runPreviewPrompt();
-		toast.success("Successfuly updated!");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
+  const updatePreviewP = () => {
+    updatePreviewPrompt(curRequestInfo).then(() => {
+      runPreviewPrompt();
+      toast.success("Successfuly updated!")
+    })
   };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
@@ -303,7 +300,7 @@ export default function Home() {
                 </button>
                 <button
                   className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                  onClick={updatePreviewPrompt}
+                  onClick={updatePreviewP}
                 >
                   Update
                 </button>

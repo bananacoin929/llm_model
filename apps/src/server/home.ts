@@ -42,16 +42,23 @@ export const updateJson = async (
   formData.append("Tags", JSON.stringify(Tags));
   formData.append("LLMRequestName", LLMRequestName);
 
-  return await axios.post(
-      process.env.NEXT_PUBLIC_LLM_API + "prompt/query",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    ).then((response) => response.data)
-    .catch((err) => console.error("Error"))
+  return await axios
+    .post(process.env.NEXT_PUBLIC_LLM_API + "prompt/query", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((response) => response.data)
+    .catch((err) => console.error("Error"));
+};
+
+export const updatePreviewPrompt = async (curRequestInfo: any) => {
+  return await axios
+    .put(process.env.NEXT_PUBLIC_LLM_API + "api/LLMRequest", curRequestInfo)
+    .then((response) => response.data)
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 export const getInputJson = async (Object: any, ObjectId: any) => {
