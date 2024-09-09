@@ -18,12 +18,12 @@
     "paths": {
       "@/*": ["src/*"],
       "@public/*": ["public/*"],
-      "@ui/*": ["../../packages/isomorphic-core/src/ui/*"],
-      "@components/*": ["../../packages/isomorphic-core/src/components/*"],
-      "@shared/*": ["../../packages/isomorphic-core/src/shared/*"],
-      "@hooks/*": ["../../packages/isomorphic-core/src/hooks/*"],
-      "@utils/*": ["../../packages/isomorphic-core/src/utils/*"],
-      "@layouts/*": ["../../packages/isomorphic-core/src/layouts/*"]
+      "@ui/*": ["../packages/isomorphic-core/src/ui/*"],
+      "@components/*": ["../packages/isomorphic-core/src/components/*"],
+      "@shared/*": ["../packages/isomorphic-core/src/shared/*"],
+      "@hooks/*": ["../packages/isomorphic-core/src/hooks/*"],
+      "@utils/*": ["../packages/isomorphic-core/src/utils/*"],
+      "@layouts/*": ["../packages/isomorphic-core/src/layouts/*"]
     },
     "plugins": [
       {
