@@ -208,6 +208,7 @@ export default function Home() {
       <Title>Update existing LLMObjects</Title>
       <div className="flex h-full">
         <div className="w-1/3 mr-6 flex flex-col h-full justify-between">
+        <div className="h-40">
           <CustomGroupBox title="Select LLM Request">
             <Select
               className="pb-5"
@@ -226,7 +227,7 @@ export default function Home() {
               }}
             ></Select>
           </CustomGroupBox>
-          
+          </div>
           <CustomGroupBox title="LLM Request Info">
             <Textarea
               placeholder="Description"
@@ -266,6 +267,7 @@ export default function Home() {
           </CustomGroupBox>
         </div>
         <div className="flex flex-col w-full justify-between">
+          <div className="h-40">
           <CustomGroupBox title="Preview Prompt">
             <Textarea
               placeholder="Prompt Text"
@@ -310,7 +312,7 @@ export default function Home() {
               </div>
             </div>
           </CustomGroupBox>
-          <div className="mt-8"></div>
+          </div>
           <div
             className="overflow-y-auto flex flex-col gap-5"
             style={{ height: "calc(100vh - 315px)" }}
