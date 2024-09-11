@@ -1,27 +1,37 @@
 import { Input, Select } from "rizzui";
 import { BsArrowUpCircleFill, BsArrowDownCircleFill } from "react-icons/bs";
+import { LLMChildren } from "../page";
 
 type CustomGroupProps = {
   title: string;
+  personalTags: Record<string, string | boolean>;
   promptText: string;
   keyInsert: any;
   seperator: string;
   curTagType: string;
-  setCurTagType: (i: number, value: string) => void;
   step: number;
   last: boolean;
+  setCurTagType: (i: number, value: string) => void;
+  onClickTag: (i: number) => void;
+  onDelete: (i: number) => void;
+  onChangePromptText: (i: number, value: string) => void;
+  onChangeSeperator: (i: number, value: string) => void;
   handleOrderChildren: (i: number, action: number) => void;
 };
 export default function CustomTagGroupBox({
-  children,
+  personalTags,
   title,
   promptText,
   keyInsert,
   seperator,
   curTagType,
-  setCurTagType,
   step,
   last,
+  setCurTagType,
+  onClickTag,
+  onDelete,
+  onChangePromptText,
+  onChangeSeperator,
   handleOrderChildren,
 }: React.PropsWithChildren<CustomGroupProps>) {
   return (
@@ -81,7 +91,7 @@ export default function CustomTagGroupBox({
             <Input
               placeholder="Prompt Text"
               value={promptText}
-              onChange={() => null}
+              onChange={(e) => onChangePromptText(step - 1, e.target.value)}
             />
             <Select
               placeholder="Key Insert"
@@ -89,7 +99,9 @@ export default function CustomTagGroupBox({
                 return { value: item.type, label: item.type, disabled: false };
               })}
               value={curTagType}
-              onChange={(selected: { value: string }) => setCurTagType(step - 1, selected.value)}
+              onChange={(selected: { value: string }) =>
+                setCurTagType(step - 1, selected.value)
+              }
               getOptionValue={(data) => data}
             ></Select>
             <div className="flex flex-row justify-between">
@@ -97,14 +109,35 @@ export default function CustomTagGroupBox({
                 className="w-40"
                 placeholder="Seperator"
                 value={seperator}
-                onChange={() => null}
+                onChange={(e) => onChangeSeperator(step - 1, e.target.value)}
               />
               {/* <Button className="w-40">Seperator</Button> */}
               <div className="flex gap-5 items-end">
-                <button className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]">
+                <button
+                  className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                  onClick={() => onClickTag(step - 1)}
+                >
                   Tags
                 </button>
-                <button className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]">
+                {Object.keys(personalTags).length === 1 &&
+                Object.keys(personalTags)[0] === "initlized" ? null : (
+                  <div className="flex gap-1">
+                    {Object.entries(personalTags)
+                      .filter(([key]) => key !== "initlized")
+                      .map(([key, value]) => (
+                        <span
+                          key={key}
+                          className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
+                        >
+                          {key}: {value}
+                        </span>
+                      ))}
+                  </div>
+                )}
+                <button
+                  className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                  onClick={() => onDelete(step - 1)}
+                >
                   Delete
                 </button>
               </div>

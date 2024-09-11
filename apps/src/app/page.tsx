@@ -1,8 +1,17 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Title, Input, Loader, Button, Textarea, Select, Modal } from "rizzui";
-import { useState, useEffect, act } from "react";
+import {
+  Title,
+  Input,
+  Loader,
+  Button,
+  Textarea,
+  Select,
+  Modal,
+  Badge,
+} from "rizzui";
+import { useState, useEffect, ChangeEvent } from "react";
 import CustomGroupBox from "@/app/components/CustomGroupBox";
 import TextBox from "@/app/components/TextBox";
 import TagPromptBox from "@/app/components/TagPromptBox";
@@ -28,16 +37,45 @@ import {
 //   ),
 // });
 
-interface TagPrompt {
+export interface LLMChildren {
+  friendlyname: string;
   keyInsert: string;
-  [key: string]: any;
+  llmChildType: string;
+  nextOrder: number;
+  order: number;
+  personalityTags: Record<string, string | boolean>;
+  prevOrder: number;
+  promptText: string;
+  seperator: string;
+  uniqid: string;
+}
+
+interface RequestInfo {
+  id: string;
+  name: string;
+  description: string;
+  nextllmRequest: string;
+  aiClient: string;
+  responseJson: string;
+  llmchildren: LLMChildren[];
+}
+
+type CurTagType = {
+  value: string;
+  label: string;
+  disabled: boolean;
+  [key: string]: string | boolean;
+};
+
+interface TagJsonType {
+  [key: string]: string;
 }
 
 export default function Home() {
   const [llmRequests, setRequests] = useState([]);
   const [apiObjects, setApiObjects] = useState([]);
   const [aiClients, setAIClients] = useState([]);
-  const [curRequestInfo, setCurRequestInfo] = useState({
+  const [curRequestInfo, setCurRequestInfo] = useState<RequestInfo>({
     id: "",
     name: "",
     description: "",
@@ -48,6 +86,7 @@ export default function Home() {
   });
   const [objectId, setObjectId] = useState("");
   const [previewPrompt, setPreviewPrompt] = useState("");
+  const [jsonText, setJsonText] = useState("");
   const [curLLmRequest, setCurLLmRequest] = useState({
     value: "NudgeGoal",
     label: "NudgeGoal",
@@ -64,12 +103,12 @@ export default function Home() {
     disabled: false,
   });
   const [tags, setTags] = useState({});
-  const [curTagType, setCurTagType] = useState({
+  const [curTagType, setCurTagType] = useState<CurTagType>({
     value: "",
     label: "",
     disabled: false,
   });
-  const [curTagValue, setCurTagValue] = useState({
+  const [curTagValue, setCurTagValue] = useState<CurTagType>({
     value: "",
     label: "",
     disabled: false,
@@ -79,49 +118,88 @@ export default function Home() {
 
   const [tagSelector, setTagSelector] = useState([]);
   const [llmChildData, setllmChildData] = useState([]);
-  const [injectorData, setInjectorData] = useState({
-    promptText: "",
-    friendlyname: "",
-    seperator: "",
-  });
-  const [textData, setTextData] = useState({
-    promptText: "",
-    seperator: "",
-  });
-  const [tagvalue, setTagValue] = useState({
-    promptText: "",
-    seperator: "",
-  });
-  const [tagJson, setTagJson] = useState({});
+
+  const [tagJson, setTagJson] = useState<TagJsonType>({});
   const [curObject, setCurObject] = useState({
     value: "",
     label: "",
     disabled: false,
   });
+
   const [inputJson, setInputJson] = useState({
     specific: "",
     measurable: "",
     achievable: "",
     relevant: "",
   });
+
+  const [selectedTag, setSelectedTag] = useState(-1);
+
   const addTag = () => {
-    const data: any = {};
-    data[curTagType.value] = curTagValue.value;
-    setTagJson(data);
+    console.log(selectedTag);
+    if (selectedTag === -1) {
+      const data = { ...tagJson, [curTagType.value]: curTagValue.value };
+      setTagJson(data);
+    } else {
+      const llmRequestData = { ...curRequestInfo };
+      const children = [...llmRequestData.llmchildren];
+      const currentItem = children[selectedTag];
+
+      currentItem.personalityTags[curTagType.value] = curTagValue.value;
+
+      llmRequestData.llmchildren = children;
+
+      console.log(llmRequestData);
+
+      setCurRequestInfo(llmRequestData);
+    }
+  };
+
+  const addNewLLMChild = (type: string) => {
+    const newChild: LLMChildren = {
+      friendlyname: "",
+      keyInsert: "",
+      llmChildType: type,
+      nextOrder: 0,
+      order: llmChildData.length,
+      personalityTags: { initlized: true },
+      prevOrder: 0,
+      promptText: type === "injector" ? "{0}" : "",
+      seperator: "",
+      uniqid: "",
+    };
+
+    const llmRequestData = { ...curRequestInfo };
+    const children = [...llmRequestData.llmchildren, newChild];
+
+    llmRequestData.llmchildren = children;
+
+    setCurRequestInfo(llmRequestData);
   };
 
   const genInputJson = async () => {
     // 66ccee96cb2984594067aaca
-    await getInputJson(curObject.value, "66ccee96cb2984594067aaca").then(
-      (res: any) => {
-        setInputJson({
-          specific: res.specific,
-          measurable: res.measurable,
-          achievable: res.achievable,
-          relevant: res.relevant,
-        });
-      }
-    );
+    await getInputJson(curObject.value, objectId).then((res: any) => {
+      setJsonText(
+        JSON.stringify(
+          {
+            specific: res.specific,
+            measurable: res.measurable,
+            achievable: res.achievable,
+            relevant: res.relevant,
+          },
+          null,
+          4
+        )
+      );
+
+      setInputJson({
+        specific: res.specific,
+        measurable: res.measurable,
+        achievable: res.achievable,
+        relevant: res.relevant,
+      });
+    });
   };
 
   const runPreviewPrompt = async () => {
@@ -135,6 +213,7 @@ export default function Home() {
   };
   const getLLMData = async (param: string) => {
     await getLLmRequestInfo(param).then((res: any) => {
+      console.log(res);
       setCurRequestInfo({
         id: res.id,
         name: res.name,
@@ -185,22 +264,70 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
-  const updatePreviewP = () => {
-    updatePreviewPrompt(curRequestInfo).then(() => {
-      runPreviewPrompt();
-      toast.success("Successfuly updated!");
-    });
-  };
+  // const updatePreviewP = () => {
+  //   updatePreviewPrompt(curRequestInfo).then(() => {
+  //     runPreviewPrompt();
+  //     toast.success("Successfuly updated!");
+  //   });
+  // };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
     const llmRequestData = { ...curRequestInfo };
     const children = [...llmRequestData.llmchildren];
 
-    (children[index] as TagPrompt).keyInsert = value;
+    (children[index] as LLMChildren).keyInsert = value;
     llmRequestData.llmchildren = children;
 
     setCurRequestInfo(llmRequestData);
   };
+
+  const onChangePromptText = (index: number, value: string) => {
+    const llmRequestData = { ...curRequestInfo };
+    const children = [...llmRequestData.llmchildren];
+
+    (children[index] as LLMChildren).promptText = value;
+    llmRequestData.llmchildren = children;
+
+    setCurRequestInfo(llmRequestData);
+  };
+
+  const onChangeSeperator = (index: number, value: string) => {
+    const llmRequestData = { ...curRequestInfo };
+    const children = [...llmRequestData.llmchildren];
+
+    (children[index] as LLMChildren).seperator = value;
+    llmRequestData.llmchildren = children;
+
+    setCurRequestInfo(llmRequestData);
+  };
+
+  const onChangeFriendlyName = (index: number, value: string) => {
+    const llmRequestData = { ...curRequestInfo };
+    const children = [...llmRequestData.llmchildren];
+
+    (children[index] as LLMChildren).friendlyname = value;
+    llmRequestData.llmchildren = children;
+
+    setCurRequestInfo(llmRequestData);
+  };
+
+  const onChangeJsonText = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setJsonText(e.target.value);
+  };
+
+  const onClickTagOnChildren = (index: number) => {
+    setOpen(true);
+    setSelectedTag(index);
+  };
+
+  const onDeleteChildren = (index: number) => {
+    const llmRequestData = { ...curRequestInfo };
+    const children = [...llmRequestData.llmchildren.slice(0, index), ...llmRequestData.llmchildren.slice(index + 1)];
+
+    llmRequestData.llmchildren = children;
+
+    setCurRequestInfo(llmRequestData);
+  }
 
   return (
     <>
@@ -260,13 +387,28 @@ export default function Home() {
             ></Select>
           </CustomGroupBox>
           <CustomGroupBox title="Toolbox">
-            <Button className="bg-[#26AD60]">Add Text Prompt</Button>
-            <Button className="bg-[#26AD60]">Add Tag Prompt</Button>
-            <Button className="bg-[#26AD60]">Add Injector</Button>
+            <Button
+              className="bg-[#26AD60]"
+              onClick={() => addNewLLMChild("text")}
+            >
+              Add Text Prompt
+            </Button>
+            <Button
+              className="bg-[#26AD60]"
+              onClick={() => addNewLLMChild("tagvalue")}
+            >
+              Add Tag Prompt
+            </Button>
+            <Button
+              className="bg-[#26AD60]"
+              onClick={() => addNewLLMChild("injector")}
+            >
+              Add Injector
+            </Button>
           </CustomGroupBox>
         </div>
         <div className="flex flex-col w-full justify-between">
-          <div className="h-[175px]">
+          <div>
             <CustomGroupBox title="Preview Prompt">
               <Textarea
                 placeholder="Prompt Text"
@@ -284,10 +426,23 @@ export default function Home() {
                   />
                   <button
                     className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                    onClick={() => setOpen(true)}
+                    onClick={() => {
+                      setSelectedTag(-1);
+                      setOpen(true);
+                    }}
                   >
                     Tags
                   </button>
+                  <div className="flex gap-1">
+                    {Object.entries(tagJson).map(([key, value]) => (
+                      <span
+                        key={key}
+                        className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
+                      >
+                        {key}: {value}
+                      </span>
+                    ))}
+                  </div>
                   <button
                     className="w-20 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
                     onClick={() => setIsOpen(true)}
@@ -302,16 +457,17 @@ export default function Home() {
                   >
                     Run
                   </button>
-                  <button
+                  {/* <button
                     className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
                     onClick={updatePreviewP}
                   >
                     Update
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </CustomGroupBox>
           </div>
+          <div className="mt-8"></div>
           <div
             className="overflow-y-auto flex flex-col gap-5"
             style={{ height: "calc(100vh - 315px)" }}
@@ -327,9 +483,17 @@ export default function Home() {
                         last={curRequestInfo.llmchildren.length - 1 == index}
                         title="Injector"
                         promptText={item.promptText}
+                        onChangePromptText={onChangePromptText}
                         friendlyname={item.friendlyname}
+                        onChangeFriendlyName={onChangeFriendlyName}
                         seperator={item.seperator}
+                        onChangeSeperator={onChangeSeperator}
                         handleOrderChildren={handleOrderChildren}
+                        onClickTag={onClickTagOnChildren}
+                        onDelete={onDeleteChildren}
+                        personalTags={
+                          curRequestInfo.llmchildren[index].personalityTags
+                        }
                       ></InjectorBox>
                     );
                   case "text":
@@ -340,8 +504,15 @@ export default function Home() {
                         last={curRequestInfo.llmchildren.length - 1 == index}
                         title="text"
                         promptText={item.promptText}
+                        onChangePromptText={onChangePromptText}
                         seperator={item.seperator}
+                        onChangeSeperator={onChangeSeperator}
                         handleOrderChildren={handleOrderChildren}
+                        onClickTag={onClickTagOnChildren}
+                        onDelete={onDeleteChildren}
+                        personalTags={
+                          curRequestInfo.llmchildren[index].personalityTags
+                        }
                       ></TextBox>
                     );
                   case "tagvalue":
@@ -352,14 +523,21 @@ export default function Home() {
                         last={curRequestInfo.llmchildren.length - 1 == index}
                         title="Tagprompt"
                         promptText={item.promptText}
+                        onChangePromptText={onChangePromptText}
                         keyInsert={tagSelector}
                         seperator={item.seperator}
+                        onChangeSeperator={onChangeSeperator}
                         curTagType={
-                          (curRequestInfo.llmchildren[index] as TagPrompt)
+                          (curRequestInfo.llmchildren[index] as LLMChildren)
                             .keyInsert
                         }
                         setCurTagType={onChangeTagpromptChildType}
                         handleOrderChildren={handleOrderChildren}
+                        onClickTag={onClickTagOnChildren}
+                        onDelete={onDeleteChildren}
+                        personalTags={
+                          curRequestInfo.llmchildren[index].personalityTags
+                        }
                       ></TagPromptBox>
                     );
                   default:
@@ -456,13 +634,13 @@ export default function Home() {
               onChange={(e) => setObjectId(e.target.value)}
             />
           </div>
-          <Textarea />
+          <Textarea value={jsonText} onChange={onChangeJsonText} />
           <div className="flex flex-row w-full justify-end gap-3 mt-3 ">
             <Button
               className="bg-[#26AD60]"
               onClick={() => {
                 genInputJson();
-                setIsOpen(false);
+                // setIsOpen(false);
               }}
             >
               Add
