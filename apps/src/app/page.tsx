@@ -619,7 +619,7 @@ export default function Home() {
                   onChange={() => null}
                 />
                 <div className="grid grid-cols-3">
-                  {outputImgs.map((url, index) => (
+                  {/* {outputImgs.map((url, index) => (
                     <div key={index} className="col-span-1">
                       <Image
                         src={url}
@@ -630,7 +630,7 @@ export default function Home() {
                         objectFit="cover"
                       />
                     </div>
-                  ))}
+                  ))} */}
                 </div>
               </CustomGroupBox>
             </div>
