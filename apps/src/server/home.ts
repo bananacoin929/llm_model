@@ -79,7 +79,7 @@ export const runPromptRequest = async (
         "Content-Type": "multipart/form-data",
       },
     })
-    .then((response) => {console.log(response); return response.data})
+    .then((response) => {return response.data})
     .catch((err) => console.error("Error"));
 };
 

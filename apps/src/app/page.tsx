@@ -280,7 +280,7 @@ export default function Home() {
     setIsGenerating(true)
     updateJson(data, tagJson, curLLmRequest.value).then(() => {
       runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
-        // console.log(res)
+        console.log(res)
         const queryTotal = res.queryTotal,
           displayResult = [];
         for (let i = 0; i < queryTotal; i++) {
