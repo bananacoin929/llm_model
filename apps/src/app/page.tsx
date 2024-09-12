@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import {
   Title,
   Input,
@@ -26,6 +27,7 @@ import {
   updateJson,
   updatePreviewPrompt,
   getInputJson,
+  runPromptRequest,
 } from "@/server/home";
 
 // const Select = dynamic(() => import("rizzui").then((mod) => mod.Select), {
@@ -60,7 +62,7 @@ interface RequestInfo {
   llmchildren: LLMChildren[];
 }
 
-type CurTagType = {
+type SelectType = {
   value: string;
   label: string;
   disabled: boolean;
@@ -103,12 +105,12 @@ export default function Home() {
     disabled: false,
   });
   const [tags, setTags] = useState({});
-  const [curTagType, setCurTagType] = useState<CurTagType>({
+  const [curTagType, setCurTagType] = useState<SelectType>({
     value: "",
     label: "",
     disabled: false,
   });
-  const [curTagValue, setCurTagValue] = useState<CurTagType>({
+  const [curTagValue, setCurTagValue] = useState<SelectType>({
     value: "",
     label: "",
     disabled: false,
@@ -135,6 +137,12 @@ export default function Home() {
 
   const [selectedTag, setSelectedTag] = useState(-1);
 
+  const [outputJson, setOutputJson] = useState("");
+
+  const [outputImgs, setOutputImgs] = useState<string[]>([]);
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const addTag = () => {
     if (selectedTag === -1) {
       const data = { ...tagJson, [curTagType.value]: curTagValue.value };
@@ -147,7 +155,6 @@ export default function Home() {
       currentItem.personalityTags[curTagType.value] = curTagValue.value;
 
       llmRequestData.llmchildren = children;
-
 
       setCurRequestInfo(llmRequestData);
     }
@@ -225,6 +232,9 @@ export default function Home() {
   useEffect(() => {
     getHomeData()
       .then((res: any) => {
+
+        // console.log(res)
+
         const tagSelector: any = Object.keys(res.tags).map((key) => ({
           type: key,
           values: res.tags[key],
@@ -260,12 +270,40 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
-  // const updatePreviewP = () => {
-  //   updatePreviewPrompt(curRequestInfo).then(() => {
-  //     runPreviewPrompt();
-  //     toast.success("Successfuly updated!");
-  //   });
-  // };
+  const updatePreviewP = () => {
+    updatePreviewPrompt(curRequestInfo).then(() => {
+      runPreviewPrompt();
+      // toast.success("Successfuly updated!");
+    });
+  };
+
+  const onClickRunPromptRequest = () => {
+    const data: any = {};
+    data[curObject.value] = inputJson;
+    setIsGenerating(true)
+    updateJson(data, tagJson, curLLmRequest.value).then(() => {
+      // runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
+      //   console.log(res)
+      //   const queryTotal = res.queryTotal,
+      //     displayResult = [];
+      //   for (let i = 0; i < queryTotal; i++) {
+      //     const query = res[`queryNo${i + 1}`];
+
+      //     setIsGenerating(false);
+      //     if (
+      //       query.hasOwnProperty("response") &&
+      //       query.response.hasOwnProperty("url")
+      //     ) {
+      //       displayResult.push(query.response.url);
+      //     }
+      //   }
+
+      //   setOutputImgs(displayResult);
+      //   setOutputJson(JSON.stringify(res, null, 2));
+      // });
+      setIsGenerating(false);
+    });
+  };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
     const llmRequestData = { ...curRequestInfo };
@@ -328,36 +366,62 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
+  const handleChangeDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setCurRequestInfo({ ...curRequestInfo, description: e.target.value });
+  };
+
+  const handleChangeResponseJson = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setCurRequestInfo({ ...curRequestInfo, responseJson: e.target.value });
+  };
+
+  const handleChangeAiClient = (v: SelectType) => {
+    setCurRequestInfo({ ...curRequestInfo, aiClient: v.value });
+  };
+
+  const handleChangeNextLLM = (v: SelectType) => {
+    setCurRequestInfo({ ...curRequestInfo, nextllmRequest: v.value });
+  };
+
+  const [timer, setTimer] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    setTimer(window.setTimeout(updatePreviewP, 1000) as unknown as number);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curRequestInfo]);
+
   return (
     <>
       <Title>Update existing LLMObjects</Title>
-      <div className="flex h-full">
+      <div className="flex h-full mt-6">
         <div className="w-1/3 mr-6 flex flex-col h-full justify-between">
-          <div className="h-[175px]">
-            <CustomGroupBox title="Select LLM Request">
-              <Select
-                className="pb-5"
-                placeholder=""
-                options={llmRequests?.map((item) => {
-                  return { value: item, label: item, disabled: false };
-                })}
-                value={curLLmRequest.value}
-                onChange={(s: any) => {
-                  setCurLLmRequest({
-                    value: s.value,
-                    label: s.label,
-                    disabled: false,
-                  });
-                  getLLMData(s.value);
-                }}
-              ></Select>
-            </CustomGroupBox>
-          </div>
+          <CustomGroupBox title="Select LLM Request">
+            <Select
+              className="pb-5 min-h-16"
+              placeholder=""
+              options={llmRequests?.map((item) => {
+                return { value: item, label: item, disabled: false };
+              })}
+              value={curLLmRequest.value}
+              onChange={(s: any) => {
+                setCurLLmRequest({
+                  value: s.value,
+                  label: s.label,
+                  disabled: false,
+                });
+                setOutputJson("");
+                getLLMData(s.value);
+              }}
+            ></Select>
+          </CustomGroupBox>
           <CustomGroupBox title="LLM Request Info">
             <Textarea
               placeholder="Description"
               value={curRequestInfo.description}
-              onChange={() => null}
+              onChange={handleChangeDescription}
             />
             <Select
               placeholder="AI Client"
@@ -365,13 +429,13 @@ export default function Home() {
                 return { value: item, label: item, disabled: false };
               })}
               value={curRequestInfo.aiClient}
-              onChange={setCurAIClient}
+              onChange={handleChangeAiClient}
             ></Select>
             <Textarea
               placeholder="ResponseJson-Format"
               aria-rowspan={5}
               value={curRequestInfo.responseJson}
-              onChange={() => null}
+              onChange={handleChangeResponseJson}
             />
             <Select
               placeholder="Next LLM Request"
@@ -382,7 +446,7 @@ export default function Home() {
                 return acc;
               }, [])}
               value={curRequestInfo.nextllmRequest}
-              onChange={setCurNextRequest}
+              onChange={handleChangeNextLLM}
             ></Select>
           </CustomGroupBox>
           <CustomGroupBox title="Toolbox">
@@ -453,10 +517,11 @@ export default function Home() {
                 </div>
                 <div className="flex gap-5 items-end">
                   <button
-                    className="w-10 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
-                    onClick={runPreviewPrompt}
+                    className="h-6 px-1 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                    onClick={onClickRunPromptRequest}
+                    disabled={isGenerating}
                   >
-                    Run
+                    {isGenerating ? "Running ..." : "Run"}
                   </button>
                   {/* <button
                     className="w-16 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
@@ -469,85 +534,110 @@ export default function Home() {
             </CustomGroupBox>
           </div>
           <div className="mt-8"></div>
-          <div
-            className="overflow-y-auto flex flex-col gap-5"
-            style={{ height: "calc(100vh - 315px)" }}
-          >
-            {curRequestInfo ? (
-              curRequestInfo.llmchildren?.map((item: any, index: number) => {
-                switch (item.llmChildType) {
-                  case "injector":
-                    return (
-                      <InjectorBox
-                        key={index + 1}
-                        step={index + 1}
-                        last={curRequestInfo.llmchildren.length - 1 == index}
-                        title="Injector"
-                        promptText={item.promptText}
-                        onChangePromptText={onChangePromptText}
-                        friendlyname={item.friendlyname}
-                        onChangeFriendlyName={onChangeFriendlyName}
-                        seperator={item.seperator}
-                        onChangeSeperator={onChangeSeperator}
-                        handleOrderChildren={handleOrderChildren}
-                        onClickTag={onClickTagOnChildren}
-                        onDelete={onDeleteChildren}
-                        personalTags={
-                          curRequestInfo.llmchildren[index].personalityTags
-                        }
-                      ></InjectorBox>
-                    );
-                  case "text":
-                    return (
-                      <TextBox
-                        key={index + 1}
-                        step={index + 1}
-                        last={curRequestInfo.llmchildren.length - 1 == index}
-                        title="text"
-                        promptText={item.promptText}
-                        onChangePromptText={onChangePromptText}
-                        seperator={item.seperator}
-                        onChangeSeperator={onChangeSeperator}
-                        handleOrderChildren={handleOrderChildren}
-                        onClickTag={onClickTagOnChildren}
-                        onDelete={onDeleteChildren}
-                        personalTags={
-                          curRequestInfo.llmchildren[index].personalityTags
-                        }
-                      ></TextBox>
-                    );
-                  case "tagvalue":
-                    return (
-                      <TagPromptBox
-                        key={index + 1}
-                        step={index + 1}
-                        last={curRequestInfo.llmchildren.length - 1 == index}
-                        title="Tagprompt"
-                        promptText={item.promptText}
-                        onChangePromptText={onChangePromptText}
-                        keyInsert={tagSelector}
-                        seperator={item.seperator}
-                        onChangeSeperator={onChangeSeperator}
-                        curTagType={
-                          (curRequestInfo.llmchildren[index] as LLMChildren)
-                            .keyInsert
-                        }
-                        setCurTagType={onChangeTagpromptChildType}
-                        handleOrderChildren={handleOrderChildren}
-                        onClickTag={onClickTagOnChildren}
-                        onDelete={onDeleteChildren}
-                        personalTags={
-                          curRequestInfo.llmchildren[index].personalityTags
-                        }
-                      ></TagPromptBox>
-                    );
-                  default:
-                    return <></>;
-                }
-              })
-            ) : (
-              <></>
-            )}
+          <div className="grid grid-cols-3 gap-5">
+            <div
+              className="overflow-y-auto flex flex-col gap-5 col-span-2"
+              style={{ height: "calc(100vh - 315px)" }}
+            >
+              {curRequestInfo ? (
+                curRequestInfo.llmchildren?.map((item: any, index: number) => {
+                  switch (item.llmChildType) {
+                    case "injector":
+                      return (
+                        <InjectorBox
+                          key={index + 1}
+                          step={index + 1}
+                          last={curRequestInfo.llmchildren.length - 1 == index}
+                          title="Injector"
+                          promptText={item.promptText}
+                          onChangePromptText={onChangePromptText}
+                          friendlyname={item.friendlyname}
+                          onChangeFriendlyName={onChangeFriendlyName}
+                          seperator={item.seperator}
+                          onChangeSeperator={onChangeSeperator}
+                          handleOrderChildren={handleOrderChildren}
+                          onClickTag={onClickTagOnChildren}
+                          onDelete={onDeleteChildren}
+                          personalTags={
+                            curRequestInfo.llmchildren[index].personalityTags
+                          }
+                        ></InjectorBox>
+                      );
+                    case "text":
+                      return (
+                        <TextBox
+                          key={index + 1}
+                          step={index + 1}
+                          last={curRequestInfo.llmchildren.length - 1 == index}
+                          title="text"
+                          promptText={item.promptText}
+                          onChangePromptText={onChangePromptText}
+                          seperator={item.seperator}
+                          onChangeSeperator={onChangeSeperator}
+                          handleOrderChildren={handleOrderChildren}
+                          onClickTag={onClickTagOnChildren}
+                          onDelete={onDeleteChildren}
+                          personalTags={
+                            curRequestInfo.llmchildren[index].personalityTags
+                          }
+                        ></TextBox>
+                      );
+                    case "tagvalue":
+                      return (
+                        <TagPromptBox
+                          key={index + 1}
+                          step={index + 1}
+                          last={curRequestInfo.llmchildren.length - 1 == index}
+                          title="Tagprompt"
+                          promptText={item.promptText}
+                          onChangePromptText={onChangePromptText}
+                          keyInsert={tagSelector}
+                          seperator={item.seperator}
+                          onChangeSeperator={onChangeSeperator}
+                          curTagType={
+                            (curRequestInfo.llmchildren[index] as LLMChildren)
+                              .keyInsert
+                          }
+                          setCurTagType={onChangeTagpromptChildType}
+                          handleOrderChildren={handleOrderChildren}
+                          onClickTag={onClickTagOnChildren}
+                          onDelete={onDeleteChildren}
+                          personalTags={
+                            curRequestInfo.llmchildren[index].personalityTags
+                          }
+                        ></TagPromptBox>
+                      );
+                    default:
+                      return <></>;
+                  }
+                })
+              ) : (
+                <></>
+              )}
+            </div>
+            <div className="col-span-1">
+              <CustomGroupBox title="Output">
+                <Textarea
+                  placeholder="Output Json"
+                  value={outputJson}
+                  onChange={() => null}
+                />
+                <div className="grid grid-cols-3">
+                  {/* {outputImgs.map((url, index) => (
+                    <div key={index} className="col-span-1">
+                      <Image
+                        src={url}
+                        alt="Image"
+                        layout="responsive"
+                        width={300}
+                        height={300}
+                        objectFit="cover"
+                      />
+                    </div>
+                  ))} */}
+                </div>
+              </CustomGroupBox>
+            </div>
           </div>
         </div>
       </div>
