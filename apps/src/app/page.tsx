@@ -136,7 +136,6 @@ export default function Home() {
   const [selectedTag, setSelectedTag] = useState(-1);
 
   const addTag = () => {
-    console.log(selectedTag);
     if (selectedTag === -1) {
       const data = { ...tagJson, [curTagType.value]: curTagValue.value };
       setTagJson(data);
@@ -149,7 +148,6 @@ export default function Home() {
 
       llmRequestData.llmchildren = children;
 
-      console.log(llmRequestData);
 
       setCurRequestInfo(llmRequestData);
     }
@@ -207,13 +205,11 @@ export default function Home() {
     data[curObject.value] = inputJson;
 
     updateJson(data, tagJson, curLLmRequest.value).then((result) => {
-      console.log(result);
       setPreviewPrompt(result);
     });
   };
   const getLLMData = async (param: string) => {
     await getLLmRequestInfo(param).then((res: any) => {
-      console.log(res);
       setCurRequestInfo({
         id: res.id,
         name: res.name,
@@ -242,7 +238,7 @@ export default function Home() {
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Server is not working");
+        toast.error("Error has been occured.");
       });
 
     getLLMData("NudgeGoal");
@@ -322,12 +318,15 @@ export default function Home() {
 
   const onDeleteChildren = (index: number) => {
     const llmRequestData = { ...curRequestInfo };
-    const children = [...llmRequestData.llmchildren.slice(0, index), ...llmRequestData.llmchildren.slice(index + 1)];
+    const children = [
+      ...llmRequestData.llmchildren.slice(0, index),
+      ...llmRequestData.llmchildren.slice(index + 1),
+    ];
 
     llmRequestData.llmchildren = children;
 
     setCurRequestInfo(llmRequestData);
-  }
+  };
 
   return (
     <>
@@ -433,30 +432,18 @@ export default function Home() {
                   >
                     Tags
                   </button>
-                  {Object.keys(tagJson).length === 0 ||
-                (Object.keys(tagJson).length === 1 &&
-                  Object.keys(tagJson)[0] === "initlized") ? null : (
-                  <div className="flex gap-1">
-                    {Object.entries(tagJson).map(([key, value]) => (
-                      <span
-                        key={key}
-                        className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
-                      >
-                        {key}: {value}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                  <div className="flex gap-1">
-                    {Object.entries(tagJson).map(([key, value]) => (
-                      <span
-                        key={key}
-                        className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
-                      >
-                        {key}: {value}
-                      </span>
-                    ))}
-                  </div>
+                  {Object.entries(tagJson).length === 0 ? null : (
+                    <div className="flex gap-1">
+                      {Object.entries(tagJson).map(([key, value]) => (
+                        <span
+                          key={key}
+                          className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
+                        >
+                          {key}: {value}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <button
                     className="w-20 h-6 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
                     onClick={() => setIsOpen(true)}
