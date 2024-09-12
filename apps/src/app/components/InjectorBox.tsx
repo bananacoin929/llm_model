@@ -120,8 +120,9 @@ export default function CustomInjectorGroupBox({
                 >
                   Tags
                 </button>
-                {Object.keys(personalTags).length === 1 &&
-                Object.keys(personalTags)[0] === "initlized" ? null : (
+                {Object.keys(personalTags).length === 0 ||
+                (Object.keys(personalTags).length === 1 &&
+                  Object.keys(personalTags)[0] === "initlized") ? null : (
                   <div className="flex gap-1">
                     {Object.entries(personalTags)
                       .filter(([key]) => key !== "initlized")
@@ -135,7 +136,10 @@ export default function CustomInjectorGroupBox({
                       ))}
                   </div>
                 )}
-                <button className="w-16 h-7 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]" onClick={() => onDelete(step - 1)}>
+                <button
+                  className="w-16 h-7 outline outline-1 rounded-md outline-[#26AD60] text-[#26AD60]"
+                  onClick={() => onDelete(step - 1)}
+                >
                   Delete
                 </button>
               </div>

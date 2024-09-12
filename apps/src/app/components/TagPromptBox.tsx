@@ -119,8 +119,9 @@ export default function CustomTagGroupBox({
                 >
                   Tags
                 </button>
-                {Object.keys(personalTags).length === 1 &&
-                Object.keys(personalTags)[0] === "initlized" ? null : (
+                {Object.keys(personalTags).length === 0 ||
+                (Object.keys(personalTags).length === 1 &&
+                  Object.keys(personalTags)[0] === "initlized") ? null : (
                   <div className="flex gap-1">
                     {Object.entries(personalTags)
                       .filter(([key]) => key !== "initlized")

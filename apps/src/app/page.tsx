@@ -433,6 +433,20 @@ export default function Home() {
                   >
                     Tags
                   </button>
+                  {Object.keys(tagJson).length === 0 ||
+                (Object.keys(tagJson).length === 1 &&
+                  Object.keys(tagJson)[0] === "initlized") ? null : (
+                  <div className="flex gap-1">
+                    {Object.entries(tagJson).map(([key, value]) => (
+                      <span
+                        key={key}
+                        className="inline-block bg-[#26AD60] text-white rounded-full px-3 py-1 text-sm font-semibold"
+                      >
+                        {key}: {value}
+                      </span>
+                    ))}
+                  </div>
+                )}
                   <div className="flex gap-1">
                     {Object.entries(tagJson).map(([key, value]) => (
                       <span
