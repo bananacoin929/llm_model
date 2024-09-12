@@ -60,7 +60,7 @@ interface RequestInfo {
   llmchildren: LLMChildren[];
 }
 
-type CurTagType = {
+type SelectType = {
   value: string;
   label: string;
   disabled: boolean;
@@ -103,12 +103,12 @@ export default function Home() {
     disabled: false,
   });
   const [tags, setTags] = useState({});
-  const [curTagType, setCurTagType] = useState<CurTagType>({
+  const [curTagType, setCurTagType] = useState<SelectType>({
     value: "",
     label: "",
     disabled: false,
   });
-  const [curTagValue, setCurTagValue] = useState<CurTagType>({
+  const [curTagValue, setCurTagValue] = useState<SelectType>({
     value: "",
     label: "",
     disabled: false,
@@ -260,12 +260,12 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
-  // const updatePreviewP = () => {
-  //   updatePreviewPrompt(curRequestInfo).then(() => {
-  //     runPreviewPrompt();
-  //     toast.success("Successfuly updated!");
-  //   });
-  // };
+  const updatePreviewP = () => {
+    updatePreviewPrompt(curRequestInfo).then(() => {
+      runPreviewPrompt();
+      // toast.success("Successfuly updated!");
+    });
+  };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
     const llmRequestData = { ...curRequestInfo };
@@ -328,6 +328,34 @@ export default function Home() {
     setCurRequestInfo(llmRequestData);
   };
 
+  const handleChangeDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setCurRequestInfo({ ...curRequestInfo, description: e.target.value })
+  }
+
+  const handleChangeResponseJson = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setCurRequestInfo({ ...curRequestInfo, responseJson: e.target.value });
+  }
+
+  const handleChangeAiClient = (v: SelectType) => {
+    setCurRequestInfo({ ...curRequestInfo, aiClient: v.value })
+  }
+
+  const handleChangeNextLLM = (v: SelectType) => {
+    setCurRequestInfo({ ...curRequestInfo, nextllmRequest: v.value })
+  }
+
+
+  const [timer, setTimer] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    
+    setTimer(window.setTimeout(updatePreviewP, 1000) as unknown as number);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curRequestInfo])
+
   return (
     <>
       <Title>Update existing LLMObjects</Title>
@@ -357,7 +385,7 @@ export default function Home() {
             <Textarea
               placeholder="Description"
               value={curRequestInfo.description}
-              onChange={() => null}
+              onChange={handleChangeDescription}
             />
             <Select
               placeholder="AI Client"
@@ -365,13 +393,13 @@ export default function Home() {
                 return { value: item, label: item, disabled: false };
               })}
               value={curRequestInfo.aiClient}
-              onChange={setCurAIClient}
+              onChange={handleChangeAiClient}
             ></Select>
             <Textarea
               placeholder="ResponseJson-Format"
               aria-rowspan={5}
               value={curRequestInfo.responseJson}
-              onChange={() => null}
+              onChange={handleChangeResponseJson}
             />
             <Select
               placeholder="Next LLM Request"
@@ -382,7 +410,7 @@ export default function Home() {
                 return acc;
               }, [])}
               value={curRequestInfo.nextllmRequest}
-              onChange={setCurNextRequest}
+              onChange={handleChangeNextLLM}
             ></Select>
           </CustomGroupBox>
           <CustomGroupBox title="Toolbox">
