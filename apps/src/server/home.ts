@@ -61,8 +61,29 @@ export const updatePreviewPrompt = async (curRequestInfo: any) => {
     });
 };
 
+
+export const runPromptRequest = async (
+  inputJson: Object,
+  Tags: Object,
+  LLMRequestName: string
+) => {
+  let formData = new FormData();
+
+  formData.append("inputJson", JSON.stringify(inputJson));
+  formData.append("Tags", JSON.stringify(Tags));
+  formData.append("LLMRequestName", LLMRequestName);
+
+  return await axios
+    .post(process.env.NEXT_PUBLIC_LLM_API + "prompt/request", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((response) => {console.log(response); return response.data})
+    .catch((err) => console.error("Error"));
+};
+
 export const getInputJson = async (Object: any, ObjectId: any) => {
-  console.log(Object);
   return await fetch(
     process.env.NEXT_PUBLIC_LLM_API + `api/${Object}/${ObjectId}`,
     {
