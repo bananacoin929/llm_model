@@ -283,13 +283,14 @@ export default function Home() {
     setIsGenerating(true)
     updateJson(data, tagJson, curLLmRequest.value).then(() => {
       runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
-        // console.log(res)
+        console.log(res)
         const queryTotal = res.queryTotal as number,
           displayResult = [];
-        for (let i = 0; i < queryTotal; i++) {
-          const query = res[`queryNo${i + 1}`];
+          console.log(queryTotal)
+        // for (let i = 0; i < queryTotal; i++) {
+        //   const query = res[`queryNo${i + 1}`];
 
-          console.log(query)
+        //   console.log(query)
 
         //   setIsGenerating(false);
         //   if (
@@ -298,7 +299,7 @@ export default function Home() {
         //   ) {
         //     displayResult.push(query.response.url);
         //   }
-        }
+        // }
 
         // setOutputImgs(displayResult);
         // setOutputJson(JSON.stringify(res, null, 2));
