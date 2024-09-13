@@ -12,7 +12,7 @@ export const getHomeData = async () => {
   })
     .then((response) => response.json())
     .then((response) => response)
-    .catch((err) => console.error(err));
+    .catch((err) => console.error("Error: prompt/settings", err));
 };
 
 export const getLLmRequestInfo = async (LLMRequestName: any) => {
@@ -28,7 +28,7 @@ export const getLLmRequestInfo = async (LLMRequestName: any) => {
   )
     .then((response) => response.json())
     .then((response) => response)
-    .catch((err) => console.error(err));
+    .catch((err) => console.error("Error: prompt/byname/", err));
 };
 
 export const updateJson = async (
@@ -49,15 +49,16 @@ export const updateJson = async (
       },
     })
     .then((response) => response.data)
-    .catch((err) => console.error("Error"));
+    .catch((err) => console.error("Error: prompt/query", err));
 };
 
 export const updatePreviewPrompt = async (curRequestInfo: any) => {
+  // console.log(curRequestInfo)
   return await axios
     .put(process.env.NEXT_PUBLIC_LLM_API + "api/LLMRequest", curRequestInfo)
     .then((response) => response.data)
     .catch((err) => {
-      console.error(err);
+      console.error("Error: api/LLMRequest", err);
     });
 };
 
@@ -80,7 +81,7 @@ export const runPromptRequest = async (
       },
     })
     .then((response) => response.data)
-    .catch((err) => console.error("Error"));
+    .catch((err) => console.error("Error: prompt/request", err));
 };
 
 export const getInputJson = async (Object: any, ObjectId: any) => {
@@ -96,5 +97,5 @@ export const getInputJson = async (Object: any, ObjectId: any) => {
   )
     .then((response) => response.json())
     .then((response) => response)
-    .catch((err) => console.error(err));
+    .catch((err) => console.error("Error: api/object/object", err));
 };
