@@ -283,23 +283,23 @@ export default function Home() {
     setIsGenerating(true)
     updateJson(data, tagJson, curLLmRequest.value).then(() => {
       runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
-        // console.log(res)
-        const queryTotal = res.queryTotal,
-          displayResult = [];
-        for (let i = 0; i < queryTotal; i++) {
-          const query = res[`queryNo${i + 1}`];
+        console.log(res)
+        // const queryTotal = res.queryTotal,
+        //   displayResult = [];
+        // for (let i = 0; i < queryTotal; i++) {
+        //   const query = res[`queryNo${i + 1}`];
 
-          setIsGenerating(false);
-          if (
-            query.hasOwnProperty("response") &&
-            query.response.hasOwnProperty("url")
-          ) {
-            displayResult.push(query.response.url);
-          }
-        }
+        //   setIsGenerating(false);
+        //   if (
+        //     query.hasOwnProperty("response") &&
+        //     query.response.hasOwnProperty("url")
+        //   ) {
+        //     displayResult.push(query.response.url);
+        //   }
+        // }
 
-        setOutputImgs(displayResult);
-        setOutputJson(JSON.stringify(res, null, 2));
+        // setOutputImgs(displayResult);
+        // setOutputJson(JSON.stringify(res, null, 2));
       });
     }).catch(err => console.log(err));
   };
