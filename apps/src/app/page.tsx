@@ -385,7 +385,7 @@ export default function Home() {
       setTimer(window.setTimeout(updatePreviewP, 1000) as unknown as number);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [curRequestInfo]);
+  }, [curRequestInfo, curTagValue, inputJson]);
 
   return (
     <>
