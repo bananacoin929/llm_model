@@ -301,7 +301,7 @@ export default function Home() {
       //   setOutputImgs(displayResult);
       //   setOutputJson(JSON.stringify(res, null, 2));
       // });
-      setIsGenerating(false);
+      setIsGenerating(false)
     });
   };
 
