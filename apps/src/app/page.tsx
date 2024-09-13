@@ -284,9 +284,9 @@ export default function Home() {
     updateJson(data, tagJson, curLLmRequest.value).then(() => {
       runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
         console.log(res)
-        const queryTotal = res.queryTotal as number,
-          displayResult = [];
-          console.log(queryTotal)
+        // const queryTotal = res.queryTotal as number,
+        //   displayResult = [];
+        //   console.log(queryTotal)
         // for (let i = 0; i < queryTotal; i++) {
         //   const query = res[`queryNo${i + 1}`];
 
@@ -304,7 +304,7 @@ export default function Home() {
         // setOutputImgs(displayResult);
         // setOutputJson(JSON.stringify(res, null, 2));
       });
-    }).catch(err => console.log(err));
+    }).catch(err => console.log("Error1: ", err));
   };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
