@@ -407,6 +407,7 @@ export default function Home() {
                   disabled: false,
                 });
                 setOutputJson("");
+                setOutputImgs([])
                 getLLMData(s.value);
               }}
             ></Select>
