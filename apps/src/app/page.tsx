@@ -1,24 +1,19 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import {
   Title,
   Input,
-  Loader,
   Button,
   Textarea,
   Select,
   Modal,
-  Badge,
 } from "rizzui";
 import { useState, useEffect, ChangeEvent } from "react";
 import CustomGroupBox from "@/app/components/CustomGroupBox";
 import TextBox from "@/app/components/TextBox";
 import TagPromptBox from "@/app/components/TagPromptBox";
 import InjectorBox from "@/app/components/InjectorBox";
-import { BsArrowUpCircleFill, BsArrowDownCircleFill } from "react-icons/bs";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
 import {
@@ -60,6 +55,8 @@ interface RequestInfo {
   aiClient: string;
   responseJson: string;
   llmchildren: LLMChildren[];
+  workflowId: string;
+  llmVariables: string[]
 }
 
 type SelectType = {
@@ -85,6 +82,8 @@ export default function Home() {
     aiClient: "",
     responseJson: "",
     llmchildren: [],
+    workflowId: "",
+    llmVariables: []
   });
   const [objectId, setObjectId] = useState("");
   const [previewPrompt, setPreviewPrompt] = useState("");
@@ -94,17 +93,7 @@ export default function Home() {
     label: "NudgeGoal",
     disabled: false,
   });
-  const [curAIClient, setCurAIClient] = useState({
-    value: "",
-    label: "",
-    disabled: false,
-  });
-  const [curNextRequest, setCurNextRequest] = useState({
-    value: "",
-    label: "",
-    disabled: false,
-  });
-  const [tags, setTags] = useState({});
+
   const [curTagType, setCurTagType] = useState<SelectType>({
     value: "",
     label: "",
@@ -225,6 +214,8 @@ export default function Home() {
         aiClient: res.aiClient,
         responseJson: res.responseJson,
         llmchildren: res.llmchildren,
+        workflowId: res.workflowId,
+        llmVariables: res.llmVariables
       });
     });
   };
@@ -232,6 +223,8 @@ export default function Home() {
   useEffect(() => {
     getHomeData()
       .then((res: any) => {
+        // console.log(res)
+
         const tagSelector: any = Object.keys(res.tags).map((key) => ({
           type: key,
           values: res.tags[key],
@@ -239,7 +232,6 @@ export default function Home() {
 
         setRequests(res.llmRequestNames);
         setAIClients(res.aiClients);
-        setTags(res.tags);
         setTagSelector(tagSelector);
         setApiObjects(res.apiObjects);
       })
@@ -277,28 +269,33 @@ export default function Home() {
   const onClickRunPromptRequest = () => {
     const data: any = {};
     data[curObject.value] = inputJson;
-    setIsGenerating(true)
-    updateJson(data, tagJson, curLLmRequest.value).then(() => {
-      runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
-        // console.log(res)
-        const queryTotal = res.queryTotal,
-          displayResult = [];
-        for (let i = 0; i < queryTotal; i++) {
-          const query = res[`queryNo${i + 1}`];
+    setIsGenerating(true);
+    updateJson(data, tagJson, curLLmRequest.value)
+      .then(() => {
+        runPromptRequest(data, tagJson, curLLmRequest.value).then((res) => {
+          // console.log(res)
+          const queryTotal = res.queryTotal as number,
+            displayResult = [];
+          // console.log(queryTotal)
+          for (let i = 0; i < queryTotal; i++) {
+            const query = res[`queryNo${i + 1}`];
 
-          setIsGenerating(false);
-          if (
-            query.hasOwnProperty("response") &&
-            query.response.hasOwnProperty("url")
-          ) {
-            displayResult.push(query.response.url);
+            // console.log(query)
+
+            setIsGenerating(false);
+            if (
+              query.hasOwnProperty("response") &&
+              query.response.hasOwnProperty("url")
+            ) {
+              displayResult.push(query.response.url);
+            }
           }
-        }
 
-        setOutputImgs(displayResult);
-        setOutputJson(JSON.stringify(res, null, 2));
-      });
-    });
+          setOutputImgs(displayResult);
+          setOutputJson(JSON.stringify(res, null, 2));
+        });
+      })
+      .catch((err) => console.log("Error1: ", err));
   };
 
   const onChangeTagpromptChildType = (index: number, value: string) => {
@@ -384,10 +381,11 @@ export default function Home() {
     if (timer) {
       clearTimeout(timer);
     }
-
-    setTimer(window.setTimeout(updatePreviewP, 1000) as unknown as number);
+    if (curRequestInfo.id) {
+      setTimer(window.setTimeout(updatePreviewP, 1000) as unknown as number);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [curRequestInfo]);
+  }, [curRequestInfo, curTagValue, inputJson]);
 
   return (
     <>
@@ -409,6 +407,7 @@ export default function Home() {
                   disabled: false,
                 });
                 setOutputJson("");
+                setOutputImgs([])
                 getLLMData(s.value);
               }}
             ></Select>
@@ -624,10 +623,9 @@ export default function Home() {
                       <Image
                         src={url}
                         alt="Image"
-                        layout="responsive"
                         width={300}
                         height={300}
-                        objectFit="cover"
+                        className="w-full h-full relative"
                       />
                     </div>
                   ))}
